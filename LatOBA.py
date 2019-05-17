@@ -5,6 +5,13 @@ import pandas as pd
 import xlsxwriter
 import openpyxl
 import datetime
+from win32com.cliet import Dispatch
+
+xl = EnsureDispatch('Excel.Application')
+if wb.Name == 'S:\OPERATIONS & ENGINEERING\Well DR Pressure\Dashboard - Wells.xlsm'
+	print ("WB:", wb.Name)
+	wb.save()
+	wb.close()
 
 #Server File location
 loc2 = ('S:\OPERATIONS & ENGINEERING\Well DR Pressure\Dashboard - Wells.xlsm')
