@@ -142,18 +142,21 @@ import xlsxwriter
 import openpyxl
 import datetime
 
-#Server File location
+
+# Server File location
 loc2 = ('S:\OPERATIONS & ENGINEERING\Well DR Pressure\Dashboard - Wells.xlsm')
-#Local file location for off network
-#loc2 =('C:\\Users\camoruso\Desktop\Dashboard - Wells.xlsm')
+# Local file location for off network
+# loc2 =('C:\\Users\camoruso\Desktop\Dashboard - Wells.xlsm')
 
 sheetname = "WS Alt Data"
 
-#login Info from local file
+# Login Info from local file (username and password will be module-level variables)
 with open("C:\\Users\camoruso\Desktop\password.txt", "r") as login_file:
     contents = login_file.readlines()
     username = contents[0]
     password = contents[1]
+
+
 
 def get_workbook_parameters(filename, sheet_name):
     '''
@@ -186,8 +189,7 @@ def df_from_web(Begdate, Enddate):
     Read data from gasstorage.net
     Return OBAdf DataFrame.
     '''
-    driver = webdriver.Chrome()
-    #"C:\Users\camoruso\Documents\Helpful Docs\Programming")
+    driver = webdriver.Chrome('C:\\Users\camoruso\Documents\Helpful Docs\Programming\chromedriver.exe')
     driver.get('https://www.gasstorage.net/WORSHAMSTEED/Operator/index.cfm')
 
     element = driver.find_element_by_xpath('//*[@id="username"]')
@@ -214,7 +216,6 @@ def df_from_web(Begdate, Enddate):
     element.send_keys(Keys.RETURN)
 
     table = driver.find_element_by_xpath('//*[@id="content"]/div/div[3]/table/tbody')
-    #table2 = driver.find_elements_by_xpath('//*[@id="content"]/div/div[3]/table/tbody/tr')
     rows = table.find_elements_by_tag_name("tr")
 
     x = []
@@ -222,7 +223,7 @@ def df_from_web(Begdate, Enddate):
         x.append([td.text for td in row.find_elements_by_tag_name("td")])
     OBAdf = pd.DataFrame(x)
 
-    #Close webdriver
+    # Close webdriver
     driver.close()
     driver.quit()
 
@@ -233,26 +234,13 @@ def update_workbook(OBAdf, Excelrowcount):
     '''
     Update OBA.xlsx with data pulled from gasstorage.net
     '''
-    #Count number of rows copied over
+    # Count number of rows copied over
     obadatarows = len(OBAdf)
-    #print(df[1:numrows2-1])
 
-    #Change dataframe to chop off header and total row
+    # Change dataframe to chop off header and total row
     OBAdf2 = OBAdf[1:obadatarows-1]
+<<<<<<< HEAD
     print(OBAdf2.dtypes)
-
-    #for col in OBAdf2.columns[2:]:
-    #	OBAdf2[col] = OBAdf2[col].apply(pd.to_numeric)
-        #convert_object(convert_numeric = True)
-    #print(OBAdf2.dtypes)
-
-    #output
-    #print(df[1:numrows2])
-    #writer = pd.Excelwriter(loc2)
-    #Write to excel after the number of entries from origina numrows (Excel sheet count)
-    #with pd.ExcelWriter(loc2) as writer:
-    #	OBAdf2.to_excel(writer,sheetname,startrow=Excelrowcount+2)
-    #	writer.save
 
     outputfile = ('S:\OPERATIONS & ENGINEERING\Well DR Pressure\OBA.xlsx')
     OBAdf2.to_excel(outputfile)
@@ -268,7 +256,29 @@ def update_workbook(OBAdf, Excelrowcount):
             ws.cell(Excelrowcount+i,j).value = (ws2.cell(i,j+1).value)
             print(ws2.cell(i,j+1).value)
  
+=======
+
+    wb = openpyxl.load_workbook(loc2, keep_vba=True)
+    ws = wb[sheetname]
+
+    obalist = OBAdf2.values.tolist()
+    for i in range(2, obadatarows):
+        for j in range(1, 6):
+                if j == 1:  # Catch Date column here
+                    try:  # Convert to Datetime string
+                        ws.cell(Excelrowcount+i, j).value = datetime.datetime.strptime(obalist[i-2][j-1],'%m/%d/%y')
+                    except:  # Any errors converting datetime will just paste as string into Excel
+                        ws.cell(Excelrowcount+i, j).value = obalist[i-2][j-1]
+                else:
+                    try:  # Convert string to float
+                        a = obalist[i-2][j-1].replace(",", "")
+                        ws.cell(Excelrowcount+i, j).value = int(a)
+                    except:
+                        ws.cell(Excelrowcount+i, j).value = obalist[i-2][j-1]
+
+>>>>>>> 9415c69c8392f340a4603ea5ca21e6f4c112ba6a
     wb.save(loc2)
+
 
 
 
@@ -276,6 +286,7 @@ if __name__ == '__main__':
     Excelrowcount, Begdate, Enddate = get_workbook_parameters(loc2, sheetname)
     OBAdf = df_from_web(Begdate, Enddate)
     update_workbook(OBAdf, Excelrowcount)
+<<<<<<< HEAD
 =======
 #Open Worksheet with Pandas
 wellsdf = pd.read_excel(loc2, sheet_name = sheetname)
@@ -365,4 +376,5 @@ for i in range(2,obadatarows):
 
 wb.save(loc2)
 
->>>>>>> 81a127603ce8da93c06f9e2114c64c441273c1c5
+=======
+>>>>>>> 9415c69c8392f340a4603ea5ca21e6f4c112ba6a
